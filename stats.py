@@ -24,6 +24,8 @@ def pearson_correlation(series_a: list[float], series_b: list[float]) -> float:
 
 
 def moving_average(values: list[float], window: int) -> list[float]:
+    if window < 1:
+        raise ValueError("window must be at least 1")
     if window > len(values):
         raise ValueError("window larger than data length")
     return [
