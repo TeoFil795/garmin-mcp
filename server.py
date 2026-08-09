@@ -2,11 +2,14 @@
 import json
 from datetime import datetime, timedelta
 
+from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
 import db as db_module
 import stats as stats_module
 from garmin_client import GarminClient
+
+load_dotenv()
 
 mcp = FastMCP("garmin-mcp")
 
@@ -69,13 +72,18 @@ def sync_garmin_data(start_date: str, end_date: str, force: bool = False) -> dic
             failed.append({"date": date_str, "error": str(e)})
         current += timedelta(days=1)
 
-    activities = client.fetch_activities(start_date, end_date)
-    for act in activities:
-        db_module.upsert_activity(conn, act["activity_id"], act["date"], **{
-            k: v for k, v in act.items() if k not in ("activity_id", "date")
-        })
+    result = {"synced": synced, "failed": failed, "activities_synced": 0}
+    try:
+        activities = client.fetch_activities(start_date, end_date)
+        for act in activities:
+            db_module.upsert_activity(conn, act["activity_id"], act["date"], **{
+                k: v for k, v in act.items() if k not in ("activity_id", "date")
+            })
+        result["activities_synced"] = len(activities)
+    except Exception as e:
+        result["activities_error"] = str(e)
 
-    return {"synced": synced, "failed": failed, "activities_synced": len(activities)}
+    return result
 
 
 @mcp.tool()
@@ -231,7 +239,7 @@ def correlate(metric_a: str, metric_b: str, start: str, end: str) -> dict:
     return {"correlation": correlation, "n_points": len(common_dates)}
 
 
-@mcp.tool()
+@mcp.tool(name="moving_average")
 def moving_average_tool(metric: str, window: int, start: str, end: str) -> dict:
     conn = _get_conn()
     table, col = _resolve_metric(metric)
