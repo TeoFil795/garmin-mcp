@@ -77,6 +77,24 @@ def test_sync_log_tracks_synced_days(conn):
     assert is_synced(conn, "2026-08-01") is True
 
 
+def test_upsert_daily_stats_with_no_fields_creates_no_row(conn):
+    upsert_daily_stats(conn, "2026-08-01")
+    rows = get_daily_stats(conn, "2026-08-01", "2026-08-01")
+    assert rows == []
+
+
+def test_upsert_sleep_and_hrv_with_no_fields_create_no_row(conn):
+    upsert_sleep(conn, "2026-08-01")
+    upsert_hrv(conn, "2026-08-01")
+    assert get_sleep(conn, "2026-08-01", "2026-08-01") == []
+    assert get_hrv(conn, "2026-08-01", "2026-08-01") == []
+
+
+def test_mark_synced_unaffected_by_empty_fields_guard(conn):
+    mark_synced(conn, "2026-08-01", status="ok")
+    assert is_synced(conn, "2026-08-01") is True
+
+
 def test_get_metric_series_skips_nulls_and_orders(conn):
     upsert_daily_stats(conn, "2026-08-03", resting_hr=50)
     upsert_daily_stats(conn, "2026-08-01", resting_hr=48)

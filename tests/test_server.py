@@ -84,6 +84,43 @@ def test_moving_average_tool(conn):
     assert result["values"] == [51.0, 53.0, 55.0]
 
 
+def test_sync_garmin_data_survives_activities_fetch_error(conn, monkeypatch):
+    monkeypatch.setenv("GARMIN_EMAIL", "a@b.com")
+    monkeypatch.setenv("GARMIN_PASSWORD", "secret")
+
+    monkeypatch.setattr(server.GarminClient, "login", lambda self: None)
+    monkeypatch.setattr(
+        server.GarminClient, "fetch_daily_stats",
+        lambda self, date: {"resting_hr": 50},
+    )
+    monkeypatch.setattr(
+        server.GarminClient, "fetch_vo2max", lambda self, date: {}
+    )
+    monkeypatch.setattr(
+        server.GarminClient, "fetch_sleep", lambda self, date: {}
+    )
+    monkeypatch.setattr(
+        server.GarminClient, "fetch_hrv", lambda self, date: {}
+    )
+
+    def raise_rate_limit(self, start, end):
+        raise RuntimeError("rate limited")
+
+    monkeypatch.setattr(
+        server.GarminClient, "fetch_activities", raise_rate_limit
+    )
+
+    result = server.sync_garmin_data("2026-08-01", "2026-08-01")
+
+    assert result["synced"] == ["2026-08-01"]
+    assert result["failed"] == []
+    assert result["activities_synced"] == 0
+    assert "rate limited" in result["activities_error"]
+
+    rows = db_module.get_daily_stats(conn, "2026-08-01", "2026-08-01")
+    assert rows[0]["resting_hr"] == 50
+
+
 def test_detect_nights_out_flags_and_stores(conn):
     baseline_days = [
         ("2026-07-2{}".format(i), 23.0, 440, 52, 55) for i in range(1, 6)

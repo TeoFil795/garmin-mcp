@@ -34,6 +34,16 @@ def test_moving_average_window_larger_than_data_raises():
         moving_average([1, 2], window=5)
 
 
+def test_moving_average_window_zero_raises():
+    with pytest.raises(ValueError, match="at least 1"):
+        moving_average([1, 2, 3], window=0)
+
+
+def test_moving_average_window_negative_raises():
+    with pytest.raises(ValueError, match="at least 1"):
+        moving_average([1, 2, 3], window=-1)
+
+
 def test_compute_baseline_mean():
     assert compute_baseline([50, 52, 54]) == pytest.approx(52.0)
 
