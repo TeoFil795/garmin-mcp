@@ -81,6 +81,10 @@ def init_db(conn: sqlite3.Connection) -> None:
 
 def _upsert(conn, table, pk_col, pk_val, fields: dict):
     fields = {k: v for k, v in fields.items() if v is not None}
+    if not fields:
+        # No real data to write. Skip the insert entirely so days with no
+        # data stay absent, rather than creating a hollow all-NULL row.
+        return
     columns = [pk_col] + list(fields.keys())
     placeholders = ", ".join(["?"] * len(columns))
     updates = ", ".join(f"{col}=excluded.{col}" for col in fields)
