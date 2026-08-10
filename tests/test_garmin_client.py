@@ -88,7 +88,7 @@ def test_parse_activity():
         "averageHR": 152,
         "maxHR": 178,
         "calories": 620,
-        "trainingEffect": 3.2,
+        "aerobicTrainingEffect": 3.2,
         "activityTrainingLoad": 145.0,
     }
     result = parse_activity(raw)
