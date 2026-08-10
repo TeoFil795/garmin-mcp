@@ -35,11 +35,25 @@ def test_parse_vo2max_missing_fields_returns_none():
     assert result == dict(vo2max_running=None, vo2max_cycling=None)
 
 
+def test_parse_vo2max_empty_list_returns_none():
+    # Garmin's max-metrics endpoint returns [] (a list, not a dict) when
+    # no vo2max data exists for the date.
+    result = parse_vo2max([])
+    assert result == dict(vo2max_running=None, vo2max_cycling=None)
+
+
+def test_parse_vo2max_nonempty_list_uses_last_record():
+    raw = [{"generic": {"vo2MaxPreciseValue": 48.5}, "cycling": {"vo2MaxValue": 44.0}}]
+    result = parse_vo2max(raw)
+    assert result == dict(vo2max_running=48.5, vo2max_cycling=44.0)
+
+
 def test_parse_sleep():
     raw = {
         "dailySleepDTO": {
-            "sleepStartTimestampLocal": "2026-08-01T23:15:00",
-            "sleepEndTimestampLocal": "2026-08-02T07:00:00",
+            # Garmin returns epoch milliseconds here, not an ISO string.
+            "sleepStartTimestampLocal": 1785719334000,
+            "sleepEndTimestampLocal": 1785739254000,
             "sleepTimeSeconds": 27900,
             "deepSleepSeconds": 5400,
             "lightSleepSeconds": 16200,
@@ -50,8 +64,11 @@ def test_parse_sleep():
         "avgOvernightHrv": 58,
     }
     result = parse_sleep(raw)
-    assert result["bedtime"] == "2026-08-01T23:15:00"
-    assert result["wake_time"] == "2026-08-02T07:00:00"
+    # Expected values recomputed with the same tz-naive conversion as the
+    # parser, to avoid hardcoding a timezone-dependent ISO string.
+    import datetime
+    assert result["bedtime"] == datetime.datetime.fromtimestamp(1785719334000 / 1000).isoformat()
+    assert result["wake_time"] == datetime.datetime.fromtimestamp(1785739254000 / 1000).isoformat()
     assert result["duration_min"] == 465
     assert result["deep_min"] == 90
     assert result["light_min"] == 270

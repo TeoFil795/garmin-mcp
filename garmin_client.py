@@ -14,13 +14,24 @@ def parse_daily_stats(raw: dict) -> dict:
     )
 
 
-def parse_vo2max(raw: dict) -> dict:
+def parse_vo2max(raw) -> dict:
+    # Garmin's max-metrics endpoint returns a list of per-day records (empty
+    # when no data exists for the date), not a single dict.
+    if isinstance(raw, list):
+        raw = raw[-1] if raw else {}
     generic = raw.get("generic") or {}
     cycling = raw.get("cycling") or {}
     return dict(
         vo2max_running=generic.get("vo2MaxPreciseValue"),
         vo2max_cycling=cycling.get("vo2MaxValue"),
     )
+
+
+def _epoch_ms_to_iso(ms):
+    if ms is None:
+        return None
+    import datetime
+    return datetime.datetime.fromtimestamp(ms / 1000).isoformat()
 
 
 def parse_sleep(raw: dict) -> dict:
@@ -32,8 +43,8 @@ def parse_sleep(raw: dict) -> dict:
         return seconds // 60 if seconds is not None else None
 
     return dict(
-        bedtime=dto.get("sleepStartTimestampLocal"),
-        wake_time=dto.get("sleepEndTimestampLocal"),
+        bedtime=_epoch_ms_to_iso(dto.get("sleepStartTimestampLocal")),
+        wake_time=_epoch_ms_to_iso(dto.get("sleepEndTimestampLocal")),
         duration_min=to_min(dto.get("sleepTimeSeconds")),
         deep_min=to_min(dto.get("deepSleepSeconds")),
         light_min=to_min(dto.get("lightSleepSeconds")),
