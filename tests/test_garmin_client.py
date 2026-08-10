@@ -11,7 +11,8 @@ def test_parse_daily_stats():
         "restingHeartRate": 52,
         "averageStressLevel": 28,
         "maxStressLevel": 74,
-        "bodyBatteryMostRecentValue": 65,
+        "bodyBatteryHighestValue": 65,
+        "bodyBatteryMostRecentValue": 12,  # end-of-day reading, must be ignored
         "bodyBatteryLowestValue": 20,
         "totalSteps": 8421,
         "weight": 74500,  # grams, Garmin returns grams

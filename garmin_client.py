@@ -7,7 +7,8 @@ def parse_daily_stats(raw: dict) -> dict:
         resting_hr=raw.get("restingHeartRate"),
         stress_avg=raw.get("averageStressLevel"),
         stress_max=raw.get("maxStressLevel"),
-        body_battery_max=raw.get("bodyBatteryMostRecentValue"),
+        # MostRecentValue is the end-of-day reading, not the day's peak.
+        body_battery_max=raw.get("bodyBatteryHighestValue"),
         body_battery_min=raw.get("bodyBatteryLowestValue"),
         steps=raw.get("totalSteps"),
         weight=(weight_g / 1000) if weight_g is not None else None,
