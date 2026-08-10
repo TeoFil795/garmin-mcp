@@ -28,10 +28,19 @@ def parse_vo2max(raw) -> dict:
 
 
 def _epoch_ms_to_iso(ms):
+    """Convert Garmin's *Local epoch fields to a local wall-clock ISO string.
+
+    Garmin's ...TimestampLocal values already have the local UTC offset baked
+    in, so they must be read as UTC to recover wall-clock time. Using
+    fromtimestamp() here would apply the machine's offset a second time.
+    """
     if ms is None:
         return None
     import datetime
-    return datetime.datetime.fromtimestamp(ms / 1000).isoformat()
+    return (datetime.datetime
+            .fromtimestamp(ms / 1000, tz=datetime.timezone.utc)
+            .replace(tzinfo=None)
+            .isoformat())
 
 
 def parse_sleep(raw: dict) -> dict:

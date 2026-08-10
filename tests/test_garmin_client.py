@@ -64,11 +64,10 @@ def test_parse_sleep():
         "avgOvernightHrv": 58,
     }
     result = parse_sleep(raw)
-    # Expected values recomputed with the same tz-naive conversion as the
-    # parser, to avoid hardcoding a timezone-dependent ISO string.
-    import datetime
-    assert result["bedtime"] == datetime.datetime.fromtimestamp(1785719334000 / 1000).isoformat()
-    assert result["wake_time"] == datetime.datetime.fromtimestamp(1785739254000 / 1000).isoformat()
+    # Garmin's *Local epochs already carry the local offset, so the wall-clock
+    # result must not depend on the machine's timezone. These are fixed values.
+    assert result["bedtime"] == "2026-08-03T01:08:54"
+    assert result["wake_time"] == "2026-08-03T06:40:54"
     assert result["duration_min"] == 465
     assert result["deep_min"] == 90
     assert result["light_min"] == 270
