@@ -49,6 +49,47 @@ def test_missing_day_is_absent_not_null(conn):
     assert len(rows) == 1
 
 
+def test_upsert_activity_stores_anaerobic_effect_and_label(conn):
+    upsert_activity(
+        conn, "act-1", "2026-08-01", type="running", training_effect=3.3,
+        anaerobic_training_effect=0.2, training_effect_label="TEMPO",
+    )
+    row = get_activities(conn, "2026-08-01", "2026-08-01")[0]
+    assert row["training_effect"] == 3.3
+    assert row["anaerobic_training_effect"] == 0.2
+    assert row["training_effect_label"] == "TEMPO"
+
+
+def test_init_db_migrates_activities_table_missing_new_columns(tmp_path):
+    # Simulate a pre-existing DB created before anaerobic_training_effect
+    # and training_effect_label existed.
+    db_path = str(tmp_path / "old.db")
+    old_conn = sqlite3.connect(db_path)
+    old_conn.execute("""
+        CREATE TABLE activities (
+            activity_id TEXT PRIMARY KEY,
+            date TEXT,
+            type TEXT,
+            duration_min REAL,
+            distance_km REAL,
+            avg_hr INTEGER,
+            max_hr INTEGER,
+            calories INTEGER,
+            training_effect REAL,
+            load REAL
+        )
+    """)
+    old_conn.commit()
+    old_conn.close()
+
+    migrated_conn = get_connection(db_path)
+    init_db(migrated_conn)
+    columns = {row[1] for row in migrated_conn.execute("PRAGMA table_info(activities)")}
+    assert "anaerobic_training_effect" in columns
+    assert "training_effect_label" in columns
+    migrated_conn.close()
+
+
 def test_sleep_and_activities_and_hrv_roundtrip(conn):
     upsert_sleep(conn, "2026-08-01", duration_min=420, sleep_score=78)
     upsert_activity(

@@ -89,6 +89,8 @@ def test_parse_activity():
         "maxHR": 178,
         "calories": 620,
         "aerobicTrainingEffect": 3.2,
+        "anaerobicTrainingEffect": 1.1,
+        "trainingEffectLabel": "TEMPO",
         "activityTrainingLoad": 145.0,
     }
     result = parse_activity(raw)
@@ -96,6 +98,8 @@ def test_parse_activity():
     assert result["date"] == "2026-08-01"
     assert result["type"] == "running"
     assert result["duration_min"] == 45.0
+    assert result["anaerobic_training_effect"] == 1.1
+    assert result["training_effect_label"] == "TEMPO"
     assert result["distance_km"] == 8.0
     assert result["avg_hr"] == 152
     assert result["max_hr"] == 178

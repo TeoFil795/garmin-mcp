@@ -70,6 +70,8 @@ def parse_activity(raw: dict) -> dict:
         max_hr=raw.get("maxHR"),
         calories=raw.get("calories"),
         training_effect=raw.get("aerobicTrainingEffect"),
+        anaerobic_training_effect=raw.get("anaerobicTrainingEffect"),
+        training_effect_label=raw.get("trainingEffectLabel"),
         load=raw.get("activityTrainingLoad"),
     )
 

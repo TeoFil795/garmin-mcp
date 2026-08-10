@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS activities (
     max_hr INTEGER,
     calories INTEGER,
     training_effect REAL,
+    anaerobic_training_effect REAL,
+    training_effect_label TEXT,
     load REAL
 );
 
@@ -76,6 +78,20 @@ def get_connection(db_path: str = DEFAULT_DB_PATH) -> sqlite3.Connection:
 
 def init_db(conn: sqlite3.Connection) -> None:
     conn.executescript(_SCHEMA)
+    conn.commit()
+    _migrate(conn)
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    # CREATE TABLE IF NOT EXISTS doesn't add columns to a table that
+    # already existed from an earlier schema version — patch those in.
+    existing = {row["name"] for row in conn.execute("PRAGMA table_info(activities)")}
+    for col, col_type in (
+        ("anaerobic_training_effect", "REAL"),
+        ("training_effect_label", "TEXT"),
+    ):
+        if col not in existing:
+            conn.execute(f"ALTER TABLE activities ADD COLUMN {col} {col_type}")
     conn.commit()
 
 
@@ -123,11 +139,15 @@ def upsert_sleep(conn, date, bedtime=None, wake_time=None, duration_min=None,
 
 def upsert_activity(conn, activity_id, date, type=None, duration_min=None,
                      distance_km=None, avg_hr=None, max_hr=None,
-                     calories=None, training_effect=None, load=None):
+                     calories=None, training_effect=None,
+                     anaerobic_training_effect=None, training_effect_label=None,
+                     load=None):
     fields = dict(
         date=date, type=type, duration_min=duration_min,
         distance_km=distance_km, avg_hr=avg_hr, max_hr=max_hr,
-        calories=calories, training_effect=training_effect, load=load,
+        calories=calories, training_effect=training_effect,
+        anaerobic_training_effect=anaerobic_training_effect,
+        training_effect_label=training_effect_label, load=load,
     )
     _upsert(conn, "activities", "activity_id", activity_id, fields)
 
