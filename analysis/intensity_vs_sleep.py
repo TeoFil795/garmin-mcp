@@ -14,13 +14,14 @@ Design notes, applying the lessons from earlier mistakes in this analysis:
     work: a HIIT session averages 66% of HRmax once its rest periods are counted.
 """
 import datetime
+from pathlib import Path
 import sys
 from collections import defaultdict
 
 import numpy as np
 from scipy import stats as sp
 
-sys.path.insert(0, "/Users/teofil795/projects/garmin-mcp")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db  # noqa: E402
 
 START, END = "2025-08-10", "2026-08-11"

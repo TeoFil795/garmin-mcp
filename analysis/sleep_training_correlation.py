@@ -6,12 +6,13 @@ many tied values, and an intensity-binned comparison to catch non-monotone
 (inverted-U) dose-response, which no correlation coefficient can see.
 """
 import math
+from pathlib import Path
 import sys
 from collections import defaultdict
 
 from scipy import stats as sp
 
-sys.path.insert(0, "/Users/teofil795/projects/garmin-mcp")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db  # noqa: E402
 
 START, END = "2025-08-10", "2026-08-10"

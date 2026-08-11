@@ -9,9 +9,10 @@ Ambiguous local times during a DST fall-back hour can round-trip to the wrong
 side by one hour; at most a couple of rows per year are affected.
 """
 import datetime
+from pathlib import Path
 import sys
 
-sys.path.insert(0, "/Users/teofil795/projects/garmin-mcp")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import db  # noqa: E402
 
 
