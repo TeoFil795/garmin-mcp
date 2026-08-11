@@ -135,9 +135,9 @@
 <header>
   <h1>Cosa determina davvero la qualità del mio sonno</h1>
   <p class="sub">Un anno di dati Garmin — 349 notti, 175 allenamenti. Cercavo l'effetto
-  dell'allenamento sul sonno. È trascurabile. Poi ho creduto di aver trovato qualcosa di
-  più interessante, e mi sbagliavo anche su quello: la risposta era la più banale
-  possibile.</p>
+  dell'allenamento sul sonno: è trascurabile. Quello che conta è l'ora in cui vado a letto,
+  e il meccanismo è ovvio — vado a letto tardi, dormo meno. Quello che ovvio non è: dove
+  cade esattamente la mia soglia, e quanto mi costa superarla.</p>
 </header>
 
 <div class="hero">
@@ -154,6 +154,11 @@
     <div class="fig" id="h3"></div>
     <div class="cap">dei miei venerdì riconosciuti come serata fuori da un algoritmo che
     non sa cosa sia il calendario</div>
+  </div>
+  <div>
+    <div class="fig" id="h4"></div>
+    <div class="cap">delle notti oltre mezzanotte finisce sotto 60 di score, contro
+    l'1% di quelle prima</div>
   </div>
 </div>
 
@@ -184,6 +189,14 @@
   <div class="verdict" style="margin-top:14px">
     <p>A parità di ore dormite l'effetto sparisce (ρ&nbsp;=&nbsp;+0.19). Non è l'orologio
     biologico: <strong>sono le ore</strong>.</p>
+    <p style="margin-top:10px">Il meccanismo è banale. La soglia no: con la mia sveglia
+    cade <strong>a mezzanotte</strong>, e superarla non mi toglie un po' di sonno — mi
+    cambia il tipo di notte. Sotto 60 di score finisce <strong>l'1%</strong> delle notti
+    prima di mezzanotte e <strong>il 29%</strong> di quelle dopo. Ci sto oltre il 20%
+    delle sere infrasettimanali: circa 8 notti buone buttate in un anno.</p>
+    <p style="margin-top:10px;font-size:12.5px;color:var(--muted)">Il motivo per cui me
+    ne importa — le giornate dopo una notte da meno di 60 rendono molto meno — è una mia
+    impressione, non un dato: la produttività qui non è misurata.</p>
   </div>
   <button class="tog" data-t="t1">Mostra tabella</button>
   <div id="t1" hidden></div>
@@ -274,6 +287,7 @@ document.getElementById("h1").textContent = S.rho_tr.toFixed(2).replace("-", "�
 document.getElementById("h2").textContent = "−0.945";
 document.getElementById("h3").textContent =
   D.weekday.find(w => w.day === "ven").pct.toFixed(0) + "%";
+document.getElementById("h4").textContent = "29%";
 document.getElementById("v1a").textContent = "ρ = " + S.rho.toFixed(2).replace("-", "−") + ", una relazione forte";
 document.getElementById("v4").textContent = "ρ = " + S.rho_tr.toFixed(2).replace("-", "−");
 
