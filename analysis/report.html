@@ -132,7 +132,9 @@
 <header>
   <h1>Cosa determina davvero la qualità del mio sonno</h1>
   <p class="sub">Un anno di dati Garmin — 349 notti, 175 allenamenti. Cercavo l'effetto
-  dell'allenamento sul sonno. L'ho trovato, ed è trascurabile. Quello che conta è un'altra cosa.</p>
+  dell'allenamento sul sonno. È trascurabile. Poi ho creduto di aver trovato qualcosa di
+  più interessante, e mi sbagliavo anche su quello: la risposta era la più banale
+  possibile.</p>
 </header>
 
 <div class="hero">
@@ -160,9 +162,23 @@
   </div>
   <div class="plot" id="p1"></div>
   <div class="verdict">
-    <p><strong id="v1a"></strong> — e regge anche <strong id="v1b"></strong> quando si
-    confrontano solo notti della stessa durata. Non è che dormi meno: dormi
-    <em>nell'orario sbagliato</em>.</p>
+    <p><strong id="v1a"></strong>. Ma il meccanismo è banale, e ci ho sbattuto la testa:
+    con la sveglia fissa, andare a letto più tardi <em>significa</em> dormire meno. Le due
+    cose sono quasi la stessa variabile — <strong>ρ = −0.945</strong>.</p>
+    <p style="margin-top:10px">Isolando le sole notti con sveglia all'ora solita
+    (06:41&nbsp;±&nbsp;45&nbsp;min, n&nbsp;=&nbsp;206):</p>
+  </div>
+  <table style="max-width:420px">
+    <thead><tr><th>a letto</th><th>ore dormite</th><th>score</th></tr></thead>
+    <tbody>
+      <tr><td>prima 23:30</td><td>7.4</td><td>85.0</td></tr>
+      <tr><td>23:30–00:30</td><td>6.7</td><td>76.4</td></tr>
+      <tr><td>dopo 00:30</td><td>5.2</td><td>58.8</td></tr>
+    </tbody>
+  </table>
+  <div class="verdict" style="margin-top:14px">
+    <p>A parità di ore dormite l'effetto sparisce (ρ&nbsp;=&nbsp;+0.19). Non è l'orologio
+    biologico: <strong>sono le ore</strong>.</p>
   </div>
   <button class="tog" data-t="t1">Mostra tabella</button>
   <div id="t1" hidden></div>
@@ -174,8 +190,9 @@
     <p class="note">Score medio per fascia di coricamento.</p>
     <div class="plot" id="p2"></div>
     <div class="verdict">
-      <p>Attraversando la mezzanotte il sonno perde <strong>10 punti secchi</strong>.
-      Non è un declino graduale.</p>
+      <p>Attraversando la mezzanotte il sonno perde <strong>10 punti</strong>. Non perché
+      la mezzanotte abbia qualcosa di speciale: è lì che, con la sveglia alle 6:40, le ore
+      scendono sotto le sette.</p>
     </div>
     <button class="tog" data-t="t2">Mostra tabella</button>
     <div id="t2" hidden></div>
@@ -212,17 +229,29 @@
 <footer>
   <p><strong>Metodo.</strong> Coefficiente di Spearman (sui ranghi: robusto agli outlier e
   alle relazioni curve ma monotone), scelto perché lo sleep score non è distribuito
-  normalmente. La correlazione parziale isola l'orario dalla durata. Kruskal-Wallis fra le
-  fasce, Fisher esatto sul weekend, correzione di Bonferroni sui confronti multipli.</p>
+  normalmente. Kruskal-Wallis fra le fasce, Fisher esatto sul weekend, correzione di
+  Bonferroni sui confronti multipli. La correlazione parziale, usata per separare orario e
+  durata, si è rivelata inaffidabile proprio qui — vedi sotto.</p>
   <p><strong>Tre bug corretti durante l'analisi</strong>, ognuno dei quali invalidava i
   risultati precedenti: un fuso orario applicato due volte sugli orari di sonno (+1h
   d'inverno, +2h d'estate); <code>body_battery_max</code> che salvava il valore di fine
   giornata invece del picco; e il fatto che Garmin etichetta il record di sonno con il
   giorno del <em>risveglio</em> — il che aveva invertito la direzione causale di tutte le
   correlazioni allenamento/sonno.</p>
-  <p><strong>Limiti.</strong> Correlazione non è causa. L'orario di coricamento è
-  probabilmente esso stesso il sintomo di qualcos'altro (uscite, alcol, schermi) che il
-  sensore non vede e che potrebbe agire sul sonno per conto proprio.</p>
+  <p><strong>Il quarto errore, quello più istruttivo.</strong> Avevo concluso che l'orario
+  contasse <em>a parità di ore dormite</em> — cioè che ci fosse un effetto circadiano
+  indipendente dalla quantità di sonno. Era un artefatto. Con la sveglia fissa, orario e
+  durata sono collineari a ρ&nbsp;=&nbsp;−0.945: chiedere a una correlazione parziale di
+  separarli è matematicamente instabile. Quel poco di segnale "indipendente" veniva tutto
+  dalle notti in cui potevo dormire fino a tardi — weekend e giorni liberi — che sono
+  sistematicamente diverse. Il controllo statistico era passato; l'obiezione di buon senso
+  ("se mi sveglio sempre alle 6:40, come faccio a non dormire meno?") no.</p>
+  <p><strong>Limiti.</strong> Correlazione non è causa, e questi sono i dati di una
+  persona sola. Non ho testato l'ipotesi più interessante — che l'alta intensità serale
+  disturbi il sonno — in modo conclusivo: c'è un accenno (ρ&nbsp;=&nbsp;−0.26 sul carico
+  aerobico serale) che però non sopravvive alla correzione per test multipli, e il
+  marcatore anaerobico, che dovrebbe essere il più sensibile, non si accende affatto.
+  Servirebbe un test prospettico.</p>
 </footer>
 </div>
 
@@ -240,7 +269,6 @@ document.getElementById("h1").textContent = S.rho.toFixed(2).replace("-", "−")
 document.getElementById("h2").textContent = S.rho_tr.toFixed(2).replace("-", "−");
 document.getElementById("h3").textContent = "−" + Math.abs(S.slope).toFixed(1);
 document.getElementById("v1a").textContent = "ρ = " + S.rho.toFixed(2).replace("-", "−") + ", una relazione forte";
-document.getElementById("v1b").textContent = "ρ = " + S.partial.toFixed(2).replace("-", "−");
 document.getElementById("v4").textContent = "ρ = " + S.rho_tr.toFixed(2).replace("-", "−");
 
 function tooltip(host) {
