@@ -1,6 +1,7 @@
 # server.py
 import json
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
@@ -9,7 +10,11 @@ import db as db_module
 import stats as stats_module
 from garmin_client import GarminClient
 
-load_dotenv()
+# Anchor to this file, not the working directory: an MCP client launches the
+# server as a subprocess with a CWD we do not control, so a bare load_dotenv()
+# would miss the .env sitting next to this script. Keeping it findable is what
+# lets credentials live only here, instead of in the client's config file.
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 mcp = FastMCP("garmin-mcp")
 

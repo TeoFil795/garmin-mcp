@@ -51,11 +51,16 @@ written to the database or logged.
 
 ```bash
 claude mcp add garmin -s user \
-  -e GARMIN_EMAIL=you@example.com -e GARMIN_PASSWORD=yourpassword \
   -- /absolute/path/to/garmin-mcp/venv/bin/python /absolute/path/to/garmin-mcp/server.py
 ```
 
 Restart Claude Code, then ask it to sync a range and query away.
+
+No credentials go on that command line. `server.py` loads the `.env` sitting
+next to it, anchored to the script's own path rather than the working
+directory — an MCP client launches the server with a CWD you do not control.
+Passing `-e GARMIN_PASSWORD=…` would work too, but it writes your password in
+plaintext into the client's config file, so prefer the `.env`.
 
 ### Register with Claude Desktop
 
@@ -66,15 +71,13 @@ Add to `claude_desktop_config.json`:
   "mcpServers": {
     "garmin": {
       "command": "/absolute/path/to/garmin-mcp/venv/bin/python",
-      "args": ["/absolute/path/to/garmin-mcp/server.py"],
-      "env": {
-        "GARMIN_EMAIL": "you@example.com",
-        "GARMIN_PASSWORD": "yourpassword"
-      }
+      "args": ["/absolute/path/to/garmin-mcp/server.py"]
     }
   }
 }
 ```
+
+Credentials come from `.env`, for the same reason as above.
 
 Both use **stdio**: the client launches the server as a subprocess and talks to
 it over stdin/stdout. No port is opened and no authentication layer is needed,
